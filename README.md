@@ -239,6 +239,16 @@ npm test
 ```
 *Executes all component tests verifying dashboard metric cards, official source link rendering, status badge variants, and unknown deadline formatting.*
 
+## Deploying the Dashboard to Render
+
+To serve the React dashboard from the same Render web service as the API, set the service's **Root Directory** to the repository root and use:
+
+- **Build Command:** `pip install -r backend/requirements.txt && npm --prefix frontend ci && npm --prefix frontend run build`
+- **Start Command:** `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Health Check Path:** `/api/health`
+
+Set `SECRET_KEY` to a unique random value and configure `ADMIN_USERNAME` and `ADMIN_PASSWORD` in the Render service's environment variables. The frontend build is served at `/`; API routes and documentation remain available under `/api`.
+
 ---
 
 ## ??? Operator Credentials

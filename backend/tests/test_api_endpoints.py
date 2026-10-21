@@ -1,11 +1,26 @@
 import pytest
 from datetime import datetime, timezone, timedelta
+from app import main
 from app.models.notice import Notice
 from app.models.source import Source
 from app.collectors.pipeline import run_collection_for_source
 
 
-def test_root_returns_service_info(client):
+def test_root_serves_frontend_when_built(client, tmp_path, monkeypatch):
+    index_file = tmp_path / "index.html"
+    index_file.write_text("<html><body>ScholarTrack dashboard</body></html>")
+    monkeypatch.setattr(main, "FRONTEND_DIST", tmp_path)
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "ScholarTrack dashboard" in response.text
+
+
+def test_root_returns_service_info_without_frontend_build(client, tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "FRONTEND_DIST", tmp_path)
+
     response = client.get("/")
 
     assert response.status_code == 200

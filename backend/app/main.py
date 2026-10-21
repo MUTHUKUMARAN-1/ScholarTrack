@@ -1,8 +1,10 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
 from app.database import engine, Base, SessionLocal
@@ -17,6 +19,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger("scholartrack")
+FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
 
 @asynccontextmanager
@@ -94,6 +97,10 @@ app.include_router(admin.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
+    index_file = FRONTEND_DIST / "index.html"
+    if index_file.is_file():
+        return FileResponse(index_file)
+
     return {
         "service": "ScholarTrack API",
         "status": "running",
@@ -110,3 +117,7 @@ def health_check():
         "environment": settings.ENVIRONMENT,
         "database": "connected"
     }
+
+
+if FRONTEND_DIST.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
