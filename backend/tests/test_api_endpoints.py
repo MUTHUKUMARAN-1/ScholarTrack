@@ -5,6 +5,18 @@ from app.models.source import Source
 from app.collectors.pipeline import run_collection_for_source
 
 
+def test_root_returns_service_info(client):
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "service": "ScholarTrack API",
+        "status": "running",
+        "docs": "/api/docs",
+        "health": "/api/health",
+    }
+
+
 def test_public_dashboard_stats(client, db_session):
     # Ingest default data
     source = db_session.query(Source).first()

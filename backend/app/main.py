@@ -92,6 +92,16 @@ app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
 
 
+@app.get("/")
+def root():
+    return {
+        "service": "ScholarTrack API",
+        "status": "running",
+        "docs": "/api/docs",
+        "health": "/api/health",
+    }
+
+
 @app.get("/api/health")
 def health_check():
     return {
